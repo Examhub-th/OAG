@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <title>ExamHub - นักจัดการงานทั่วไป สำนักอัยการสูงสุด</title>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loading-overlay">
+        <div class="loader-spin"></div>
+        <p id="loading-text" style="margin-top:15px; font-weight:500;">กำลังประมวลผล...</p>
+    </div>
+    
+    <div id="toast-notification">✅ บันทึกผลคะแนนเข้าสู่ระบบเรียบร้อย</div>
+
+    <div class="container">
+      
+      <div class="theme-picker-wrapper" style="padding: 10px 15px;">
+        <div onclick="toggleTheme()" style="cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-main); opacity: 0.8;" title="ซ่อน/แสดงธีม">
+          <span class="material-symbols-rounded" style="font-size: 1.5rem; margin: 0;">palette</span>
+        </div>
+        <div class="theme-picker" id="theme-list" style="display: none; margin-top: 12px;">
+          <div class="theme-btn btn-light" onclick="setTheme('light')"></div>
+          <div class="theme-btn btn-earth2" onclick="setTheme('earth2')"></div>
+          <div class="theme-btn btn-pastel" onclick="setTheme('pastel')"></div>
+          <div class="theme-btn btn-formal" onclick="setTheme('formal')"></div>
+          <div class="theme-btn btn-mono" onclick="setTheme('mono')"></div>
+          <div class="theme-btn btn-dark" onclick="setTheme('dark')"></div>
+          <div class="theme-btn btn-sakura" onclick="setTheme('sakura')"></div>
+          <div class="theme-btn btn-matcha" onclick="setTheme('matcha')"></div>
+        </div>
+      </div>
+
+      <div id="login-section" class="card app-section" style="display:block;">
+        <div class="exam-main-title">
+          <h3>ข้อสอบเตรียมความพร้อม</h3>
+          <h1>ตำแหน่งนักจัดการงานทั่วไป<br>สำนักอัยการสูงสุด</h1>
+        </div>
+        <h2 style="text-align: center; color: var(--text-main); margin-bottom: 20px;">
+          <span class="material-symbols-rounded" style="vertical-align: middle;">login</span> เข้าสู่ระบบ
+        </h2>
+        
+        <div class="input-group">
+          <label> Username or Email</label>
+          <input type="email" id="login-email" placeholder="อีเมลที่ใช้สมัคร" autocapitalize="none">
+        </div>
+
+        <div class="input-group">
+          <label>รหัสผ่าน</label>
+          <input type="password" id="password" placeholder="รหัสผ่านของคุณ">
+        </div>
+
+        <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+          <a href="javascript:void(0);" onclick="resetPassword()" style="color: var(--primary); font-size: 0.85rem; text-decoration: none; font-weight: 600;">ลืมรหัสผ่าน?</a>
+        </div>
+
+        <button class="primary-btn" onclick="doLogin()" style="width: 100%; margin-bottom: 30px; font-size: 1.1rem; padding: 12px;">
+          เข้าสู่ระบบ
+        </button>
+
+        <div style="text-align: center; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+          <p style="margin-bottom:12px; font-weight:600; color:var(--text-main);">สำหรับผู้ใช้งานใหม่</p>
+          
+          <button class="primary-btn" onclick="navigate('register-section')">
+            <span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.3rem; vertical-align: middle;">person_add</span> สมัครสมาชิก
+          </button>
+          
+          <button class="primary-btn" style="margin-top: 15px; background: #686055;" onclick="startFreeTrial()">
+            <span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.3rem; vertical-align: middle;">rocket_launch</span> ทดลองทำข้อสอบฟรี
+          </button>
+        </div>
+        
+        <div style="margin-top:35px; border-top:1px dashed var(--border-color); padding-top:25px; text-align:center;">
+          <p style="font-weight:700; color:var(--text-main); margin-bottom:15px;"><span class="material-symbols-rounded" style="font-size:1.2rem; vertical-align:middle;">chat</span> ติดต่อสอบถาม / ชำระเงิน </p>
+          <img src="https://qr-official.line.me/gs/M_419btfww_BW.png?oat_content=qr" style="width:130px; border:3px solid #00c300; border-radius:15px; background:#fff; padding:5px; margin-bottom:10px;">
+          <p style="font-weight:700; color:#009900; margin:0;">LINE ID: @419btfww</p>
+          <a href="https://line.me/R/ti/p/@419btfww" target="_blank" style="text-decoration:none"><button class="primary-btn" style="background:#00c300; margin-top:12px; height: 45px; font-size: 0.95rem;">แอดไลน์ทักแชท</button></a>
+        </div>
+      </div>
+
+      <div id="register-section" class="card app-section" style="display:none;">
+        <div class="exam-main-title">
+            <h3>สมัครสมาชิกใหม่</h3>
+            <h1>สร้างบัญชีผู้ใช้งาน</h1>
+        </div>
+        
+        <div id="register-form-container">
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label for="reg-username" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">ชื่อผู้ใช้งาน (Username) <span style="color:red;">*</span></label>
+                <input type="text" id="reg-username" placeholder="ตั้งชื่อผู้ใช้งาน (ภาษาอังกฤษหรือตัวเลข)" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;" required>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label for="reg-name" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">ชื่อ - นามสกุล <span style="color:red;">*</span></label>
+                <input type="text" id="reg-name" placeholder="กรอกชื่อและนามสกุลจริง" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;" required>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label for="reg-phone" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">เบอร์โทรศัพท์ <span style="color:red;">*</span></label>
+                <input type="tel" id="reg-phone" placeholder="08X-XXX-XXXX" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;" required>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 15px;">
+                <label for="reg-email" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">อีเมล (Email) <span style="color:red;">*</span></label>
+                <input type="email" id="reg-email" placeholder="example@email.com" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;" required>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 20px;">
+                <label for="reg-password" style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">รหัสผ่าน <span style="color:red;">*</span></label>
+                <input type="password" id="reg-password" placeholder="ตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 5px;" required>
+            </div>
+
+            <button class="primary-btn" onclick="doRegister()" style="width: 100%; padding: 12px; font-size: 1rem; border-radius: 8px;">ยืนยันการสมัครสมาชิก</button>
+            
+            <button class="back-btn" onclick="navigate('login-section')" style="margin-top: 15px; width: 100%;">
+                <span class="material-symbols-rounded">arrow_back</span> กลับไปหน้าเข้าสู่ระบบ
+            </button>
+        </div>
+      </div>
+
+      <div id="payment-section" class="card app-section">
+        <div class="exam-main-title"><h1>ขั้นตอนการเปิดใช้งาน</h1></div>
+        <div style="text-align:center;">
+          <span class="material-symbols-rounded" style="font-size:3.5rem; color:#00B900;">check_circle</span>
+          <p style="font-size:1.1rem; font-weight:600; margin:15px 0;">ค่าสมาชิก 250 บาท</p>
+          <img src="https://qr-official.line.me/gs/M_419btfww_BW.png?oat_content=qr" style="width:180px; border:3px solid #00c300; border-radius:15px; background:#fff; padding:5px; margin:15px 0;">
+          <p style="font-weight:700; color:#009900;">LINE ID: @419btfww</p>
+          <a href="https://line.me/R/ti/p/@419btfww" target="_blank" style="text-decoration:none"><button class="primary-btn" style="background:#00c300; box-shadow:0 4px 15px rgba(0, 185, 0, 0.3);">แอดไลน์ส่งสลิปโอนเงิน</button></a>
+          <button class="back-btn" onclick="navigate('login-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับไปหน้าล็อกอิน</button>
+        </div>
+      </div>
+
+      <div id="admin-section" class="card app-section">
+        <div class="exam-main-title">
+          <h1><span class="material-symbols-rounded" style="font-size:2rem; vertical-align:middle; color:var(--primary);">admin_panel_settings</span> Admin Dashboard</h1>
+        </div>
+        <div class="menu-grid" style="margin-top:0; margin-bottom: 20px;">
+          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow);">
+            <div style="font-size:0.9rem; color:var(--text-muted);">ผู้ใช้ทั้งหมด</div>
+            <div style="font-size:1.8rem; font-weight:700; color:var(--primary);" id="stat-total">0</div>
+          </div>
+          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow);">
+            <div style="font-size:0.9rem; color:var(--text-muted);">รออนุมัติ</div>
+            <div style="font-size:1.8rem; font-weight:700; color:#ff9500;" id="stat-pending">0</div>
+          </div>
+          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow); grid-column: span 2;">
+            <div style="font-size:0.9rem; color:var(--text-muted);">รายได้ประมาณการ (อนุมัติ x 250฿)</div>
+            <div style="font-size:1.8rem; font-weight:700; color:var(--success-text);" id="stat-revenue">0 ฿</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+          <button class="primary-btn" style="margin-top:0; background:var(--primary);" onclick="adminClearCache()"><span class="material-symbols-rounded" style="font-size:1.2rem; color:#fff;">update</span> รีเฟรชข้อสอบ</button>
+          <a id="btn-open-sheet" href="#" target="_blank" style="text-decoration:none; flex:1; display:none;"><button class="back-btn" style="margin-top:0; width:100%; background:#28a745;"><span class="material-symbols-rounded" style="font-size:1.2rem; color:#fff;">table_view</span> เปิดชีท</button></a>
+        </div>
+        <div style="background:rgba(255,255,255,0.7); border-radius:15px; padding:20px; border:1px solid var(--border-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin: 0; font-size:1.1rem; display:flex; align-items:center; gap:10px;">📋 จัดการสมาชิก <button onclick="loadAdminDashboard()" style="background:none; border:none; cursor:pointer; color:var(--primary); padding:0; display:flex; align-items:center;" title="รีเฟรชรายชื่อ"><span class="material-symbols-rounded" style="font-size: 1.5rem;">refresh</span></button></h3>
+            <select id="admin-filter" onchange="renderAdminUsers()" style="padding:5px 10px; border-radius:8px; border:1px solid var(--border-color); font-family:'Prompt';">
+              <option value="all">ทั้งหมด</option>
+              <option value="รอตรวจสอบ" selected>รออนุมัติ</option>
+              <option value="อนุมัติ">อนุมัติแล้ว</option>
+            </select>
+          </div>
+          <div id="admin-users-list" style="max-height:400px; overflow-y:auto; padding-right:5px;">กำลังโหลดข้อมูล...</div>
+        </div>
+        <button class="primary-btn" style="background:#007bff; margin-top: 25px;" onclick="navigate('admin-exam-section')">
+          <span class="material-symbols-rounded" style="color:white; font-size:1.3rem;">edit_document</span> ระบบจัดการคลังข้อสอบ
+        </button>
+        <button class="back-btn" id="logout-btn" onclick="logout(this)" style="margin-top:15px;">ออกจากระบบ</button>
+      </div>
+
+      <div id="admin-exam-section" class="card app-section">
+        <div class="exam-main-title">
+          <h1>จัดการคลังข้อสอบ</h1>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <select id="admin-exam-filter" onchange="renderAdminQuestions()" style="padding:8px; border-radius:8px; border:1px solid var(--border-color); font-family:'Prompt'; max-width: 60%;">
+            <option value="all">ดูทุกหมวดหมู่</option>
+          </select>
+          <button class="primary-btn" style="margin:0; width:auto; padding: 10px 15px; font-size:0.9rem;" onclick="showAddQuestionModal()">+ เพิ่มข้อสอบ</button>
+        </div>
+        <div id="admin-question-list" style="max-height:400px; overflow-y:auto; padding-right:5px;"></div>
+        <button class="back-btn" onclick="navigate('admin-section')" style="margin-top: 25px;">กลับหน้า Dashboard</button>
+      </div>
+
+      <div id="main-menu-section" class="card app-section">
+        <div class="countdown-banner">
+            <p style="margin: 0; font-size: 0.9rem; font-weight: 500; opacity: 0.9;">นับถอยหลังสู่วันสอบเหลืออีก</p>
+            <h1 id="days-count">--</h1>
+            <p style="margin: 0; font-size: 1rem; font-weight: 600;">วัน</p>
+        </div>
+        <h2 id="user-greeting"></h2>
+        <p style="margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted);">ความคืบหน้าภาพรวม</p>
+        <div class="progress-container"><div id="overall-progress-bar" class="progress-bar"></div><div id="overall-progress-text" class="progress-text">0%</div></div>
+        <div class="menu-grid">
+          <div class="menu-btn" onclick="openTopicList('exam')">
+            <span class="material-symbols-rounded">edit_document</span> ข้อสอบ (แยกบท)
+          </div>
+          <div class="menu-btn" onclick="openTopicList('content')">
+            <span class="material-symbols-rounded">local_library</span> เนื้อหาบทเรียน
+          </div>
+          <div class="menu-btn" onclick="navigate('mini-test-config-section')">
+            <span class="material-symbols-rounded">fact_check</span> ทดสอบรวม
+          </div>
+          <div class="menu-btn" onclick="startMockExam()">
+            <span class="material-symbols-rounded">timer</span> จำลองสอบจริง
+          </div>
+          <div class="menu-btn" onclick="showHistory()">
+            <span class="material-symbols-rounded">history</span> ประวัติการสอบ
+          </div>
+          <div class="menu-btn" onclick="showAnalytics()">
+            <span class="material-symbols-rounded">analytics</span> วิเคราะห์จุดอ่อน
+          </div>
+          <div class="menu-btn" onclick="navigate('contact-section')">
+            <span class="material-symbols-rounded">contact_support</span> ติดต่อสอบถาม
+          </div>
+        </div>
+        <button class="back-btn" onclick="logout(this)" style="margin-top:30px;">ออกจากระบบ</button>
+      </div>
+
+      <div id="result-section" class="card app-section">
+        <h2>สรุปผลคะแนน</h2>
+        <div style="text-align:center;">
+          <div style="font-size:4.5rem; font-weight:800; color:var(--primary);" id="percent-display">0%</div>
+          <p id="score-display" style="font-weight:600; font-size:1.2rem; line-height:1.5;"></p>
+        </div>
+        <div id="category-breakdown" style="margin-top:25px; padding-top:25px; border-top:1px dashed var(--border-color);"></div>
+        <button class="primary-btn" onclick="toggleReview()" style="background:var(--text-muted); margin-top:25px;"><span class="material-symbols-rounded" style="color:white; font-size:1.3rem;">manage_search</span> ดูเฉลยและคำอธิบาย</button>
+        <button class="primary-btn" onclick="goHome()">กลับสู่หน้าหลัก</button>
+        <div id="review-container" style="display:none; margin-top:30px; border-top:2px solid var(--border-color); padding-top:20px; text-align:left;"></div>
+      </div>
+
+      <div id="mini-test-config-section" class="card app-section">
+        <h2>ทดสอบความรู้รวม</h2>
+        <div class="input-group"><label>จำนวนข้อ (ระบบจะสุ่มเฉลี่ยจากทุกบท)</label><input type="number" id="random-amount" value="22" inputmode="numeric"></div>
+        <button class="primary-btn" onclick="startMiniTest()">เริ่มทำแบบทดสอบ</button>
+        <button class="back-btn" onclick="navigate('main-menu-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับ</button>
+      </div>
+
+      <div id="history-section" class="card app-section">
+        <div class="exam-main-title"><h1>ประวัติการทำสอบ</h1></div>
+        <div id="history-content"></div>
+        <button class="back-btn" onclick="navigate('main-menu-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับหน้าหลัก</button>
+      </div>
+
+      <div id="analytics-section" class="card app-section">
+        <div class="exam-main-title"><h1>วิเคราะห์ผลการเรียนรู้</h1></div>
+        <div id="analytics-content"></div>
+        <button class="back-btn" onclick="navigate('main-menu-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับหน้าหลัก</button>
+      </div>
+
+      <div id="contact-section" class="card app-section">
+        <div class="exam-main-title"><h1>ติดต่อสอบถาม</h1></div>
+        <div style="text-align:center;">
+          <span class="material-symbols-rounded" style="font-size:3.5rem; color:var(--primary);">chat</span>
+          <p style="font-size:1.1rem; font-weight:600; margin:15px 0;">หากพบปัญหาการใช้งานหรือต้องการเปิดระบบ</p>
+          <img src="https://qr-official.line.me/gs/M_419btfww_BW.png?oat_content=qr" style="width:180px; border:3px solid #00c300; border-radius:15px; background:#fff; padding:5px; margin:15px 0;">
+          <p style="font-weight:700; color:#009900; font-size:1.2rem;">LINE ID: @419btfww</p>
+          <a href="https://line.me/R/ti/p/@419btfww" target="_blank" style="text-decoration:none"><button class="primary-btn" style="background:#00c300;">ทักแชทสอบถาม</button></a>
+          <button class="back-btn" onclick="navigate('main-menu-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับหน้าหลัก</button>
+        </div>
+      </div>
+
+      <div id="topic-list-section" class="card app-section">
+        <h2 id="topic-list-title">หมวดหมู่</h2>
+        <div id="topic-container" style="display:flex; flex-direction:column; gap:12px; margin-top:20px;"></div>
+        <button class="back-btn" onclick="navigate('main-menu-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับหน้าหลัก</button>
+      </div>
+
+      <div id="topic-action-section" class="card app-section">
+        <h2 id="topic-action-title"></h2>
+        <p style="text-align:center; margin-bottom: 20px;">เลือกรูปแบบการทำแบบทดสอบ</p>
+        <div class="menu-grid" style="margin-top: 10px;">
+          <div class="menu-btn" onclick="showExamSets('drill')"><span class="material-symbols-rounded">bolt</span>ตะลุยข้อสอบ<div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:-5px;">(ดูเฉลยทันที & บันทึกประวัติ)</div></div>
+          <div class="menu-btn" onclick="showExamSets('exam')"><span class="material-symbols-rounded">format_list_numbered</span>ทำข้อสอบ<div style="font-size:0.75rem; color:var(--text-muted); font-weight:400; margin-top:-5px;">(สรุปคะแนน & บันทึกประวัติ)</div></div>
+        </div>
+        <button class="back-btn" onclick="navigate('topic-list-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับไปเลือกวิชา</button>
+      </div>
+
+      <div id="exam-set-section" class="card app-section">
+        <h2 id="exam-set-title">เลือกชุด</h2>
+        <div class="progress-container"><div id="topic-progress-bar" class="progress-bar"></div><div id="topic-progress-text" class="progress-text">ทำไปแล้ว 0%</div></div>
+        <div id="set-buttons-container" class="menu-grid"></div>
+        <button class="back-btn" onclick="navigate('topic-action-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับ</button>
+      </div>
+
+      <div id="quiz-section" class="app-section" style="display:none;">
+        <div id="timer-bar" style="display:none; background:var(--glass-bg); padding:12px; border-radius:20px; text-align:center; font-weight:700; margin-bottom:20px; border:1px solid var(--border-color);">
+            ⏱️ เวลาคงเหลือ: <span id="time-display">00:00</span>
+        </div>
+        <div class="card">
+            <h2 id="quiz-title" style="text-align: center; margin-bottom: 20px;"></h2>
+            <div id="quiz-container"></div>
+            <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 12px;">
+                <button class="primary-btn" id="submit-btn" onclick="submitQuiz()" style="display:none; width: 100%;">
+                    <span class="material-symbols-rounded" style="vertical-align: middle;">rocket_launch</span> ส่งคำตอบทั้งหมด
+                </button>
+                <button id="quit-btn" class="secondary-btn" onclick="quitQuiz()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0,0,0,0.05); border: 1px solid var(--border-color); color: var(--text-muted); padding: 12px; border-radius: 15px; font-weight: 600;">
+                    <span class="material-symbols-rounded">cancel</span> ยกเลิกการทำสอบ
+                </button>
+            </div>
+        </div>
+      </div>
+
+      <div id="content-view-section" class="card app-section" style="display:none;">
+          <div class="exam-main-title">
+              <h1 id="content-topic-title" style="font-size: 1.5rem; color: var(--primary);">เนื้อหาบทเรียน</h1>
+          </div>
+          <div id="content-detail-container" style="margin-top: 20px;"></div>
+          <button class="back-btn" onclick="navigate('topic-list-section')" style="margin-top: 30px; width: 100%;">
+              <span class="material-symbols-rounded">arrow_back</span> กลับไปเลือกหมวดหมู่
+          </button>
+      </div>
+
+    </div>
+
+    <div id="question-form-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+      <div class="card" style="width:90%; max-width:500px; max-height:90vh; overflow-y:auto; position:relative; margin:0;">
+          <h2 id="q-form-title" style="margin-top:0;">เพิ่มข้อสอบใหม่</h2>
+          <input type="hidden" id="q-form-index" value="-1">
+          <div class="input-group">
+            <label>หมวดหมู่วิชา</label>
+            <select id="q-form-cat" style="width:100%; padding:15px; border-radius:14px; border:1px solid var(--border-color); font-family:'Prompt';"></select>
+          </div>
+          <div class="input-group">
+            <label>คำถาม</label>
+            <textarea id="q-form-q" rows="3" style="width:100%; padding:15px; border-radius:14px; border:1px solid var(--border-color); font-family:'Prompt'; resize:vertical;"></textarea>
+          </div>
+          <div class="input-group"><label>ตัวเลือก 1 (ก)</label><input type="text" id="q-form-a1"></div>
+          <div class="input-group"><label>ตัวเลือก 2 (ข)</label><input type="text" id="q-form-a2"></div>
+          <div class="input-group"><label>ตัวเลือก 3 (ค)</label><input type="text" id="q-form-a3"></div>
+          <div class="input-group"><label>ตัวเลือก 4 (ง)</label><input type="text" id="q-form-a4"></div>
+          <div class="input-group">
+            <label>เฉลยที่ถูกต้อง (พิมพ์เลข 1-4)</label>
+            <input type="number" id="q-form-ans" min="1" max="4" placeholder="เช่น 1 (หมายถึงข้อ ก)">
+          </div>
+          <div class="input-group">
+            <label>คำอธิบายเฉลย (เพิ่มเติม)</label>
+            <textarea id="q-form-explain" rows="3" style="width:100%; padding:15px; border-radius:14px; border:1px solid var(--border-color); font-family:'Prompt';" placeholder="อธิบายที่มาของคำตอบ..."></textarea>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="back-btn" style="margin:0; background:#6c757d;" onclick="document.getElementById('question-form-modal').style.display='none'">ยกเลิก</button>
+            <button class="primary-btn" style="margin:0; background:var(--success-text);" onclick="saveQuestionToFirebase()">บันทึกข้อสอบ</button>
+          </div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>
