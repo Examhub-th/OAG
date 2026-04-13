@@ -28,7 +28,7 @@ let lastActivityTime = Date.now();
 let idleCheckInterval;
 const IDLE_LIMIT = 30 * 60 * 1000; 
 
-const topics = ["การใช้โปรแกรมในการปฏิบัติงาน", "ความรู้เกี่ยวกับคอมพิวเตอร์","พ.ร.บ. ข้อมูลข่าวสารของราชการ", "พ.ร.บ. ข้าราชการพลเรือน", "พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล", "พ.ร.บ. ระเบียบข้าราชการฝ่ายอัยการ","พ.ร.บ. องค์กรอัยการพนักงานอัยการ", "ระเบียบงานสารบรรณ", "สำนักงานอัยการสูงสุด" , "ข้อเสมือนจริงปี 2567"];
+const topics = ["การใช้โปรแกรมในการปฏิบัติงาน", "ความรู้เกี่ยวกับคอมพิวเตอร์","พ.ร.บ. ข้อมูลข่าวสารของราชการ", "พ.ร.บ. ข้าราชการพลเรือน", "พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล", "พ.ร.บ. ระเบียบข้าราชการฝ่ายอัยการ","พ.ร.บ. องค์กรอัยการพนักงานอัยการ", "ระเบียบงานสารบรรณ", "สำนักงานอัยการสูงสุด" , "ข้อสอบเสมือนจริงปี 2567"];
 
 window.onerror = function(msg, url, lineNo, columnNo, error) {
   let loader = document.getElementById('loading-overlay');
@@ -211,42 +211,28 @@ function getDeviceId() {
 // ==========================================
 // 📥 4. ระบบโหลดข้อมูล (Firebase + Cache)
 // ==========================================
-function loadData() {
-  const CACHE_KEY = 'examhub_exams_cache';
-  const CACHE_TIME_KEY = 'examhub_exams_cache_time';
-  const ONE_DAY = 24 * 60 * 60 * 1000;
-  const now = Date.now();
+async function loadData() {
+    try {
+        // ดึงข้อมูลจากไฟล์ที่ฝากไว้บน Server (Netlify/GitHub)
+        const response = await fetch('./questions.json'); 
+        const data = await response.json();
+        
+        // แปลงรูปแบบข้อมูลให้เข้ากับ Logic เดิมของแอปคุณ (ถ้าจำเป็น)
+        allData = data.map(r => [
+            r.question,
+            r.options[0], r.options[1], r.options[2], r.options[3],
+            r.answer.toString() + (r.explanation ? " " + r.explanation : ""),
+            r.category
+        ]);
 
-  const cachedData = localStorage.getItem(CACHE_KEY);
-  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-
-  if (cachedData && cachedTime && (now - parseInt(cachedTime) < ONE_DAY)) {
-      allData = JSON.parse(cachedData);
-      console.log("🚀 Load from Cache สำเร็จ (" + allData.length + " ข้อ)");
-      if(currentUsername) updateOverallProgress();
-      return;
-  }
-
-  db.collection("exams").get().then((querySnapshot) => {
-    allData = [];
-    querySnapshot.forEach((doc) => {
-      let r = doc.data();
-      allData.push([
-        r.question || "", 
-        r.options && r.options[0] ? r.options[0] : "", 
-        r.options && r.options[1] ? r.options[1] : "", 
-        r.options && r.options[2] ? r.options[2] : "", 
-        r.options && r.options[3] ? r.options[3] : "",
-        (r.answer || "1").toString() + (r.explanation ? " " + r.explanation : ""),
-        r.category || ""
-      ]);
-    });
-    localStorage.setItem(CACHE_KEY, JSON.stringify(allData));
-    localStorage.setItem(CACHE_TIME_KEY, now.toString());
-    console.log("✅ ดึงข้อมูลจาก Firebase สำเร็จ (" + allData.length + " ข้อ)");
-    if(currentUsername) updateOverallProgress();
-  }).catch(e => console.error("Firebase Load Error:", e));
+        console.log("✅ โหลดข้อสอบจาก JSON สำเร็จ (" + allData.length + " ข้อ)");
+        
+        if(currentUsername) updateOverallProgress();
+    } catch (error) {
+        console.error("❌ Error loading JSON:", error);
+    }
 }
+
 
 // ==========================================
 // 🔑 5. ระบบเข้าสู่ระบบ & สมัครสมาชิก (ใช้อีเมลจริง)
@@ -464,37 +450,122 @@ function startQuizBySet(s, e, n) {
   startQuizUI(selectedExamTopic + (currentActionMode === 'drill' ? ' (โหมดตะลุยชุดที่ ' + n + ')' : ' ชุดที่ ' + n), false); 
 }
 
-function startMockExam() { 
-  showLoader('กำลังเตรียมข้อสอบ 40 ข้อ...');
-  setTimeout(() => {
-    let validData = allData.filter(r => r && r[0]); 
-    currentQuiz = [...validData].sort(() => 0.5 - Math.random()).slice(0, 40); 
-    currentQuizIdentifier = 'mock'; 
-    startQuizUI('จำลองสอบเสมือนจริง (40 ข้อ)', true); 
-  }, 50);
-} 
+async function startMockExam() { 
+  // 1. เช็กก่อนว่ามีข้อมูลใน allData หรือยัง (เผื่อไฟล์ JSON ยังโหลดไม่เสร็จ)
+  if (!allData || allData.length === 0) {
+    showLoader('กำลังดึงข้อมูลข้อสอบจากระบบ...');
+    // พยายามโหลดข้อมูลใหม่อีกครั้งถ้ายังไม่มี
+    await loadData(); 
+  }
 
-function startFreeTrial() {
-  if(!allData || !allData.length) return alert('กำลังโหลดข้อมูล... หรือ ไม่พบฐานข้อมูลข้อสอบ');
-  
-  // กรองเอาเฉพาะข้อที่มีคำถาม
+  // 2. ถ้าโหลดแล้วยังไม่มีข้อสอบจริงๆ ให้แจ้งเตือน
+  if (!allData || allData.length === 0) {
+    hideLoader();
+    alert('❌ ไม่พบข้อมูลข้อสอบในระบบ กรุณาลองใหม่อีกครั้งหรือติดต่อแอดมินครับ');
+    return;
+  }
+
+  showLoader('กำลังสุ่มข้อสอบ 40 ข้อ...');
+
+  // 3. ใช้ setTimeout เล็กน้อยเพื่อให้ Loader แสดงผลก่อนเริ่มประมวลผลการสุ่ม
+  setTimeout(() => {
+    // กรองเฉพาะข้อที่มีคำถาม (index 0 ไม่ว่าง)
+    let validData = allData.filter(r => r && r[0]); 
+
+    if (validData.length < 40) {
+      hideLoader();
+      alert(`⚠️ ข้อสอบในระบบมีทั้งหมด ${validData.length} ข้อ ซึ่งไม่พอสำหรับโหมดจำลองสอบ (ต้องการ 40 ข้อ)`);
+      return;
+    }
+
+    // 4. สุ่มข้อสอบ (Fisher-Yates Shuffle แบบง่าย) และตัดเอา 40 ข้อ
+    currentQuiz = [...validData]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 40); 
+
+    currentQuizIdentifier = 'mock'; 
+    
+    // 5. เริ่มหน้าจอทำข้อสอบ
+    startQuizUI('จำลองสอบเสมือนจริง (40 ข้อ)', true); 
+    hideLoader(); // ปิด Loader เมื่อหน้าจอ Quiz พร้อม
+  }, 300);
+}
+
+async function startFreeTrial() {
+  // 1. ถ้ายังไม่มีข้อมูลในเครื่อง (ไฟล์ JSON ยังโหลดไม่เสร็จ) ให้สั่งโหลดก่อน
+  if (!allData || !allData.length) {
+    showLoader('กำลังเตรียมข้อสอบทดลองทำฟรี...');
+    await loadData(); 
+  }
+
+  // 2. เช็กอีกครั้งหลังจากพยายามโหลดแล้ว
+  if (!allData || !allData.length) {
+    hideLoader();
+    return alert('❌ ไม่พบฐานข้อมูลข้อสอบ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตครับ');
+  }
+
+  // 3. กรองเอาเฉพาะข้อที่มีคำถาม (index 0 ไม่ว่าง)
   let validData = allData.filter(r => r && r[0]); 
   
-  if (validData.length < 10) return alert('ข้อสอบในระบบมีไม่ถึง 10 ข้อ');
+  if (validData.length < 10) {
+    hideLoader();
+    return alert('⚠️ ขออภัยครับ ข้อสอบในระบบมีไม่ถึง 10 ข้อ');
+  }
 
-  // 🎯 ดึง 10 ข้อแรกจากฐานข้อมูลเสมอ (ตัดระบบสุ่มออก ทุกคนจะได้ 10 ข้อชุดเดียวกัน 100%)
+  // 4. สั่งเริ่มโหมดทดลองทำ (ใช้ 10 ข้อแรกตามที่คุณต้องการ)
+  // 🎯 ดึง 10 ข้อแรกจากฐานข้อมูลเสมอ (ทุกคนจะได้ชุดเดียวกัน 100%)
   currentQuiz = validData.slice(0, 10);
-  
   currentQuizIdentifier = 'trial'; 
-  startQuizUI('ทดลองทำฟรี (10 ข้อ)', false); 
+
+  // 5. แสดงผลหน้าจอทำข้อสอบ
+  setTimeout(() => {
+    startQuizUI('ทดลองทำฟรี (10 ข้อ)', false); 
+    hideLoader();
+  }, 300);
 }
 
 
-function startMiniTest() { 
-  let amt = parseInt(document.getElementById('random-amount').value) || 22; 
+async function startMiniTest() { 
+  // 1. เช็กก่อนว่ามีข้อมูลใน allData หรือยัง (เผื่อไฟล์ JSON ยังโหลดไม่เสร็จ)
+  if (!allData || !allData.length) {
+    showLoader('กำลังเตรียมข้อสอบ...');
+    await loadData(); 
+  }
+
+  // 2. เช็กอีกครั้งหลังจากพยายามโหลดแล้ว
+  if (!allData || !allData.length) {
+    hideLoader();
+    return alert('❌ ไม่พบฐานข้อมูลข้อสอบ กรุณาลองใหม่อีกครั้งครับ');
+  }
+
+  // 3. รับค่าจำนวนข้อที่ผู้ใช้ต้องการ (ถ้าไม่ได้กรอกให้ค่าเริ่มต้นเป็น 22)
+  let amtInput = document.getElementById('random-amount');
+  let amt = amtInput ? parseInt(amtInput.value) : 22;
+  if (isNaN(amt) || amt <= 0) amt = 22; 
+
+  // 4. กรองเฉพาะข้อที่มีคำถาม
   let validData = allData.filter(r => r && r[0]); 
-  currentQuiz = [...validData].sort(() => 0.5 - Math.random()).slice(0, amt); 
-  currentQuizIdentifier = 'mini'; startQuizUI('ทดสอบความรู้รวม', false); 
+
+  // 5. เช็กว่าจำนวนที่ขอมา (amt) เกินจำนวนข้อสอบที่มีจริงไหม
+  if (amt > validData.length) {
+    amt = validData.length; // ถ้าขอมาเยอะเกิน ให้เอาเท่าที่มีพอ
+    console.warn(`จำนวนข้อที่ระบุเกินขีดจำกัด ระบบจะใช้ข้อสอบเท่าที่มีคือ ${amt} ข้อ`);
+  }
+
+  showLoader(`กำลังสุ่มข้อสอบ ${amt} ข้อ...`);
+
+  // 6. สุ่มข้อสอบและตัดตามจำนวนที่กำหนด
+  setTimeout(() => {
+    currentQuiz = [...validData]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, amt); 
+
+    currentQuizIdentifier = 'mini'; 
+    
+    // 7. เริ่มหน้าจอทำข้อสอบ
+    startQuizUI('ทดสอบความรู้รวม', false); 
+    hideLoader();
+  }, 300);
 }
 
 async function startQuizUI(title, useTimer) {
@@ -784,42 +855,27 @@ function adminAction(userId, action) {
   }
 }
 
+// เปลี่ยนจากดึง Firebase เป็นดึงจาก allData ที่เราโหลดไว้แล้ว
 function renderAdminQuestions() {
   let filter = document.getElementById('admin-exam-filter').value;
   let container = document.getElementById('admin-question-list');
-  container.innerHTML = '<p style="text-align:center;">กำลังดึงข้อมูลข้อสอบ...</p>';
+  let html = ''; let count = 0;
 
-  const examFilter = document.getElementById('admin-exam-filter');
-  const formCat = document.getElementById('q-form-cat');
-  if(examFilter && examFilter.options.length <= 1) {
-    topics.forEach(t => { examFilter.add(new Option(t, t)); if(formCat) formCat.add(new Option(t, t)); });
-  }
-
-  db.collection("exams").orderBy("createdAt", "desc").get().then((querySnapshot) => {
-      let html = ''; let count = 0;
-      querySnapshot.forEach((doc) => {
-        let r = doc.data(); let docId = doc.id;
-        if (filter === 'all' || (r.category && r.category.trim() === filter.trim())) {
-          count++;
-          html += `
-            <div style="background:#fff; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 12px; border-radius: 12px;">
-              <div style="font-size:0.85rem; color:var(--primary); font-weight:700; margin-bottom:5px;">หมวด: ${r.category || 'ไม่ได้ระบุ'}</div>
-              <div style="font-weight:600; margin-bottom:8px;">คำถาม: ${r.question}</div>
-              <ul style="margin:0; padding-left:20px; font-size:0.9rem; color:var(--text-muted);">
-                <li style="${r.answer == 1 ? 'color:var(--success-text); font-weight:bold;' : ''}">ก. ${r.options ? r.options[0] : ''}</li>
-                <li style="${r.answer == 2 ? 'color:var(--success-text); font-weight:bold;' : ''}">ข. ${r.options ? r.options[1] : ''}</li>
-                <li style="${r.answer == 3 ? 'color:var(--success-text); font-weight:bold;' : ''}">ค. ${r.options ? r.options[2] : ''}</li>
-                <li style="${r.answer == 4 ? 'color:var(--success-text); font-weight:bold;' : ''}">ง. ${r.options ? r.options[3] : ''}</li>
-              </ul>
-              <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="primary-btn" style="margin:0; padding:8px; flex:1;" onclick="editQuestionModal('${docId}')">แก้ไข</button>
-                <button class="danger-btn" style="margin:0; padding:8px; flex:1; background:var(--danger-text);" onclick="deleteQuestion('${docId}')">ลบ</button>
-              </div>
-            </div>`;
-        }
-      });
-      container.innerHTML = count === 0 ? '<p style="text-align:center; color:var(--text-muted);">ไม่พบข้อสอบในหมวดนี้</p>' : html;
-    });
+  allData.forEach((r, index) => {
+    if (filter === 'all' || (r[6] && r[6].trim() === filter.trim())) {
+      count++;
+      html += `
+        <div style="background:#fff; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 12px; border-radius: 12px;">
+          <div style="font-size:0.85rem; color:var(--primary); font-weight:700; margin-bottom:5px;">หมวด: ${r[6]}</div>
+          <div style="font-weight:600; margin-bottom:8px;">คำถาม: ${r[0]}</div>
+          <ul style="margin:0; padding-left:20px; font-size:0.9rem; color:var(--text-muted);">
+            <li>ก. ${r[1]}</li> <li>ข. ${r[2]}</li> <li>ค. ${r[3]}</li> <li>ง. ${r[4]}</li>
+          </ul>
+          <div style="margin-top:10px; font-size:0.8rem; color:orange;">* แก้ไขข้อมูลได้ที่ไฟล์ questions.json บน GitHub เท่านั้น</div>
+        </div>`;
+    }
+  });
+  container.innerHTML = count === 0 ? '<p style="text-align:center;">ไม่พบข้อสอบ</p>' : html;
 }
 
 function showAddQuestionModal() {
@@ -1029,3 +1085,58 @@ function openTopicList(type) {
     navigate('topic-list-section');
 }
 
+async function showExamSets(mode) {
+    currentActionMode = mode;
+    showLoader('กำลังตรวจสอบจำนวนข้อสอบ...');
+    
+    try {
+        // 1. ดึงเฉพาะข้อที่อยู่ในหมวด (Category) ที่เราเลือกมานับจำนวนก่อน
+        const querySnapshot = await db.collection("exams")
+            .where("category", "==", selectedExamTopic.trim())
+            .get();
+
+        currentTopicQuestions = [];
+        querySnapshot.forEach((doc) => {
+            let r = doc.data();
+            currentTopicQuestions.push([
+                r.question || "", 
+                r.options && r.options[0] ? r.options[0] : "", 
+                r.options && r.options[1] ? r.options[1] : "", 
+                r.options && r.options[2] ? r.options[2] : "", 
+                r.options && r.options[3] ? r.options[3] : "",
+                (r.answer || "1").toString() + (r.explanation ? " " + r.explanation : ""),
+                r.category || ""
+            ]);
+        });
+
+        // 2. คำนวณชุดข้อสอบเหมือนเดิม
+        let totalQ = currentTopicQuestions.length;
+        let doneQ = 0;
+        let h = '';
+        let sets = Math.ceil(totalQ / 25);
+
+        for (let i = 0; i < sets; i++) {
+            let id = selectedExamTopic + '_ชุดที่_' + (i + 1);
+            let isDone = isQuizCompleted(id);
+            if (isDone) doneQ += (i === sets - 1 && totalQ % 25 !== 0) ? (totalQ % 25) : 25;
+            
+            h += `<div class="menu-btn" style="${isDone ? 'background:rgba(52, 199, 89, 0.1); border-color:#28a745;' : ''}" 
+                  onclick="startQuizBySet(${i * 25}, ${(i + 1) * 25}, ${i + 1})">
+                  ชุดที่ ${i + 1} ${isDone ? '✅' : ''}</div>`;
+        }
+
+        let p = totalQ > 0 ? Math.round((doneQ / totalQ) * 100) : 0;
+        document.getElementById('topic-progress-bar').style.width = p + '%';
+        document.getElementById('topic-progress-text').innerText = `ทำหมวดนี้ไปแล้ว ${p}%`;
+        document.getElementById('exam-set-title').innerText = (mode === 'drill' ? 'ตะลุยข้อสอบ: ' : '') + selectedExamTopic;
+        document.getElementById('set-buttons-container').innerHTML = h;
+        
+        hideLoader();
+        navigate('exam-set-section');
+
+    } catch (error) {
+        console.error("Firebase Error:", error);
+        hideLoader();
+        alert("เกิดข้อผิดพลาดในการโหลดข้อสอบครับ");
+    }
+}
