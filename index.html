@@ -123,15 +123,32 @@
         </div>
       </div>
 
-      <div id="payment-section" class="card app-section">
-        <div class="exam-main-title"><h1>ขั้นตอนการเปิดใช้งาน</h1></div>
+<div id="payment-section" class="card app-section" style="display:none;">
+        <div class="exam-main-title"><h1>ขั้นตอนการสมัคร</h1></div>
         <div style="text-align:center;">
-          <span class="material-symbols-rounded" style="font-size:3.5rem; color:#00B900;">check_circle</span>
-          <p style="font-size:1.1rem; font-weight:600; margin:15px 0;">ค่าสมาชิก 250 บาท</p>
-          <img src="https://qr-official.line.me/gs/M_419btfww_BW.png?oat_content=qr" style="width:180px; border:3px solid #00c300; border-radius:15px; background:#fff; padding:5px; margin:15px 0;">
-          <p style="font-weight:700; color:#009900;">LINE ID: @419btfww</p>
-          <a href="https://line.me/R/ti/p/@419btfww" target="_blank" style="text-decoration:none"><button class="primary-btn" style="background:#00c300; box-shadow:0 4px 15px rgba(0, 185, 0, 0.3);">แอดไลน์ส่งสลิปโอนเงิน</button></a>
-          <button class="back-btn" onclick="navigate('login-section')"><span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับไปหน้าล็อกอิน</button>
+          <span class="material-symbols-rounded" style="font-size:4rem; color:var(--success-text);">check_circle</span>
+          <p style="font-size:1.2rem; font-weight:700; color:var(--success-text); margin-top:10px; margin-bottom:5px;">ระบบได้รับข้อมูลของคุณแล้ว</p>
+          <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:20px;">ค่าสมัครสมาชิก 250 บาท</p>
+          
+          <div style="background: rgba(132, 182, 244, 0.1); border: 1px dashed var(--primary); border-radius: 12px; padding: 15px; margin: 15px 0; text-align: left;">
+              <p style="font-weight: 700; color: var(--text-main); text-align: center; margin-top: 0; margin-bottom: 12px;">✨ ขั้นตอนการสมัครสมาชิก ตำแหน่งนักจัดการงานทั่วไป สำนักอัยการสูงสุด ✨</p>
+              <p style="font-size: 0.95rem; margin-bottom: 10px; color: var(--text-main); line-height: 1.6;">
+                  <b style="color: var(--primary);">แจ้งอีเมล:</b> เมื่อสมัครเสร็จแล้ว ให้แจ้ง "อีเมลที่ใช้สมัคร" มาที่แอดมิน เพื่อรับรายละเอียดการชำระเงินค่ะ
+              </p>
+              <p style="font-size: 0.95rem; margin-bottom: 0; color: var(--text-main); line-height: 1.6;">
+                  <b style="color: var(--primary);">เปิดระบบ:</b> หลังแจ้งสลิปชำระเงิน แอดมินจะดำเนินการอนุมัติสิทธิ์ให้เข้าใช้งานได้ทันที!
+              </p>
+          </div>
+
+          <img src="https://qr-official.line.me/gs/M_419btfww_BW.png?oat_content=qr" style="width:160px; border:3px solid #00c300; border-radius:15px; background:#fff; padding:5px; margin:10px 0;">
+          <p style="font-weight:700; color:#009900; margin-bottom:15px;">LINE ID: @419btfww</p>
+          
+          <a href="https://line.me/R/ti/p/@419btfww" target="_blank" style="text-decoration:none">
+              <button class="primary-btn" style="background:#00c300; box-shadow:0 4px 15px rgba(0, 185, 0, 0.3);">แอดไลน์แจ้งอีเมล / ชำระเงิน</button>
+          </a>
+          <button class="back-btn" onclick="navigate('login-section')">
+              <span class="material-symbols-rounded" style="color:white; filter:none; font-size:1.2rem;">arrow_back</span> กลับไปหน้าล็อกอิน
+          </button>
         </div>
       </div>
 
@@ -145,11 +162,15 @@
             <div style="font-size:1.8rem; font-weight:700; color:var(--primary);" id="stat-total">0</div>
           </div>
           <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow);">
+            <div style="font-size:0.9rem; color:var(--text-muted);">อนุมัติแล้ว</div>
+            <div style="font-size:1.8rem; font-weight:700; color:var(--success-text);" id="stat-approved">0</div>
+          </div>
+          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow);">
             <div style="font-size:0.9rem; color:var(--text-muted);">รออนุมัติ</div>
             <div style="font-size:1.8rem; font-weight:700; color:#ff9500;" id="stat-pending">0</div>
           </div>
-          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow); grid-column: span 2;">
-            <div style="font-size:0.9rem; color:var(--text-muted);">รายได้ประมาณการ (อนุมัติ x 250฿)</div>
+          <div style="background:#fff; border:1px solid var(--border-color); border-radius:15px; padding:15px; text-align:center; box-shadow:var(--shadow);">
+            <div style="font-size:0.9rem; color:var(--text-muted);">รายได้ประมาณการ</div>
             <div style="font-size:1.8rem; font-weight:700; color:var(--success-text);" id="stat-revenue">0 ฿</div>
           </div>
         </div>
@@ -166,6 +187,11 @@
               <option value="อนุมัติ">อนุมัติแล้ว</option>
             </select>
           </div>
+          
+          <div style="margin-bottom: 15px;">
+              <input type="text" id="admin-search-user" onkeyup="renderAdminUsers()" placeholder="🔍 ค้นหาด้วยชื่อ, อีเมล หรือ User..." style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 1rem; outline: none; background: #fff; box-sizing: border-box; font-family: 'Prompt';">
+          </div>
+
           <div id="admin-users-list" style="max-height:400px; overflow-y:auto; padding-right:5px;">กำลังโหลดข้อมูล...</div>
         </div>
         <button class="primary-btn" style="background:#007bff; margin-top: 25px;" onclick="navigate('admin-exam-section')">
