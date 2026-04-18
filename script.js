@@ -840,40 +840,68 @@ let adminUsersData = [];
 function loadAdminDashboard() {
   document.getElementById('admin-users-list').innerHTML = '<p style="text-align:center;">กำลังโหลดข้อมูล...</p>';
   db.collection("users").orderBy("createdAt", "desc").get().then((querySnapshot) => {
-      let total = 0, pending = 0, revenue = 0; adminUsersData = [];
+      let total = 0, pending = 0, approved = 0, revenue = 0; adminUsersData = [];
+      
       querySnapshot.forEach((doc) => {
         let u = doc.data();
         if(u.role !== 'admin') { 
-          u.id = doc.id; adminUsersData.push(u); total++;
+          u.id = doc.id; 
+          adminUsersData.push(u); 
+          total++;
+          
           if(u.status === 'รอตรวจสอบ') pending++;
-          if(u.status === 'อนุมัติ') revenue += 250;
+          if(u.status === 'อนุมัติ') { 
+              approved++; 
+              revenue += 250; 
+          }
         }
       });
-      document.getElementById('stat-total').innerText = total;
-      document.getElementById('stat-pending').innerText = pending;
-      document.getElementById('stat-revenue').innerText = revenue.toLocaleString() + ' ฿';
-      renderAdminUsers(); renderAdminQuestions(); 
-    }).catch((error) => { document.getElementById('admin-users-list').innerHTML = '<p style="text-align:center; color:red;">โหลดข้อมูลล้มเหลว</p>'; });
+      
+      // อัปเดตตัวเลขบนแดชบอร์ด
+      if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = total;
+      if(document.getElementById('stat-pending')) document.getElementById('stat-pending').innerText = pending;
+      if(document.getElementById('stat-approved')) document.getElementById('stat-approved').innerText = approved; // เพิ่มช่องจำนวนอนุมัติ
+      if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').innerText = revenue.toLocaleString() + ' ฿';
+      
+      renderAdminUsers(); 
+      renderAdminQuestions(); 
+    }).catch((error) => { 
+        document.getElementById('admin-users-list').innerHTML = '<p style="text-align:center; color:red;">โหลดข้อมูลล้มเหลว</p>'; 
+    });
 }
 
 function renderAdminUsers() {
-  let filter = document.getElementById('admin-filter').value;
+  let filter = document.getElementById('admin-filter') ? document.getElementById('admin-filter').value : 'all';
+  let searchQuery = document.getElementById('admin-search-user') ? document.getElementById('admin-search-user').value.toLowerCase().trim() : ''; 
   let container = document.getElementById('admin-users-list');
   let html = ''; 
   
-  let filteredUsers = adminUsersData.filter(u => filter === 'all' || u.status === filter);
+  // กรองด้วยสถานะ + การค้นหาจากชื่อ, อีเมล หรือ Username
+  let filteredUsers = adminUsersData.filter(u => {
+      let matchStatus = (filter === 'all' || u.status === filter);
+      let uEmail = (u.email || u.realEmail || '').toLowerCase();
+      let uName = (u.name || '').toLowerCase();
+      let uUsername = (u.username || '').toLowerCase();
+      
+      let matchSearch = searchQuery === '' || 
+                        uEmail.includes(searchQuery) || 
+                        uName.includes(searchQuery) || 
+                        uUsername.includes(searchQuery);
+
+      return matchStatus && matchSearch;
+  });
   
   if(filteredUsers.length === 0) { 
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">ไม่พบข้อมูลในหมวดนี้</div>'; 
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted);">ไม่พบข้อมูล หรือไม่พบผู้ใช้ที่ค้นหา</div>'; 
     return; 
   }
 
   filteredUsers.forEach(u => {
     let statusColor = u.status === 'อนุมัติ' ? 'var(--success-text)' : (u.status === 'ระงับการใช้งาน' ? 'var(--danger-text)' : '#ff9500');
-   // ✅ ก๊อปปี้ 2 บรรทัดนี้ไปวางทับของเดิมเลยครับ
-let emailPrefix = u.email ? u.email.split('@')[0] : ''; 
-let displayUsername = u.username || u.name || emailPrefix || '<span style="color:#ccc; font-weight:400;">ไม่มีข้อมูล</span>';
-let displayEmail = u.email || u.realEmail || 'ไม่มีข้อมูล';
+    let emailPrefix = u.email ? u.email.split('@')[0] : ''; 
+    let displayUsername = u.username || u.name || emailPrefix || '<span style="color:#ccc; font-weight:400;">ไม่มีข้อมูล</span>';
+    let displayEmail = u.email || u.realEmail || 'ไม่มีข้อมูล';
+    
     html += `
       <div style="background:#fff; border: 1px solid var(--border-color); padding: 15px; margin-bottom: 10px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
